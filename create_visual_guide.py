@@ -33,13 +33,16 @@ ax1.axvline(x=y_mean, color='green', linestyle=':', linewidth=3, alpha=0.8, zord
 # Draw red line (y=x)
 ax1.plot([0, 10], [0, 10], 'r--', linewidth=3, alpha=0.8, zorder=2)
 
-# Draw points and residuals
+# Draw points, residuals, and SS_total components
 for i, (x, y) in enumerate(points):
     # Blue point
     ax1.scatter(x, y, s=200, c='steelblue', edgecolors='black', linewidth=2, zorder=5)
     
-    # Orange residual line (to y=x)
+    # Orange residual line (to y=x line - for SS_residual)
     ax1.plot([x, x], [y, x], color='orange', linewidth=3, alpha=0.8, zorder=4)
+    
+    # Purple horizontal line (from true value to mean - for SS_total)
+    ax1.plot([x, y_mean], [y, y], color='purple', linewidth=3, alpha=0.7, zorder=3)
     
     # Annotate specific points
     if i == 0:  # First point - detailed annotation
@@ -56,6 +59,13 @@ for i, (x, y) in enumerate(points):
                     fontsize=10, fontweight='bold',
                     bbox=dict(boxstyle='round', facecolor='lightyellow', alpha=0.8),
                     arrowprops=dict(arrowstyle='->', lw=2, color='orange'))
+        
+        # Arrow for SS_total component
+        ax1.annotate('y - ȳ\n= 3 - 5 = -2\n(for SS_total)', 
+                    xy=((x+y_mean)/2, y), xytext=(2.5, 1),
+                    fontsize=10, fontweight='bold',
+                    bbox=dict(boxstyle='round', facecolor='plum', alpha=0.8),
+                    arrowprops=dict(arrowstyle='->', lw=2, color='purple'))
     
     elif i == 1:  # Second point
         ax1.annotate('Over-prediction\n(above y=x)', 
@@ -112,11 +122,20 @@ KEY FORMULAS AND VISUAL ELEMENTS
    If all points on this line → R² = 1, RMSE = 0
 
 
-🟠 ORANGE LINES (Residuals)
+🟠 ORANGE LINES (Residuals for SS_residual)
    Definition: Vertical distance from point to red line
    Formula: residual_i = ŷ_i - y_i
    
    Length represents prediction error for each sample
+   Squared lengths summed → SS_residual
+
+
+🟣 PURPLE LINES (Deviations for SS_total)
+   Definition: Horizontal distance from point to green line
+   Formula: deviation_i = y_i - ȳ
+   
+   Length shows how far true value is from mean
+   Squared lengths summed → SS_total
 
 
 🔵 BLUE POINTS (Predictions)
@@ -131,14 +150,15 @@ KEY FORMULAS AND VISUAL ELEMENTS
 CALCULATING METRICS FROM THE PLOT
 ═══════════════════════════════════════════════════════════
 
-Step 1: SS_total (from green lines)
+Step 1: SS_total (from purple lines)
    SS_total = Σ(y_i - ȳ)²
-   = Sum of squared vertical distances 
-     from each TRUE value to green line
+   = Sum of squared LENGTHS of purple lines
+   = Total variance in ground truth
 
 Step 2: SS_residual (from orange lines)
    SS_residual = Σ(ŷ_i - y_i)²
    = Sum of squared LENGTHS of orange lines
+   = Total prediction error
 
 Step 3: R² Score
    R² = 1 - (SS_residual / SS_total)

@@ -214,15 +214,13 @@ def visualize_scenario(scenario: Dict, ax: plt.Axes, show_details: bool = False)
     ax.plot([plot_min, plot_max], [plot_min, plot_max],
             'r--', linewidth=2, label='Perfect prediction (y=x)', zorder=2)
     
+    # Always show mean lines for visual reference
+    ax.axhline(y=y_mean, color='green', linestyle=':', linewidth=1.5, 
+               label=f'Mean GT (ȳ={y_mean:.1f})', alpha=0.6, zorder=1)
+    ax.axvline(x=y_mean, color='green', linestyle=':', linewidth=1.5, 
+               alpha=0.6, zorder=1)
+    
     if show_details:
-        # Add horizontal line at mean of y_true
-        ax.axhline(y=y_mean, color='green', linestyle=':', linewidth=2, 
-                   label=f'Mean GT (ȳ={y_mean:.1f})', alpha=0.7, zorder=1)
-        
-        # Add vertical line at mean of y_true
-        ax.axvline(x=y_mean, color='green', linestyle=':', linewidth=2, 
-                   alpha=0.7, zorder=1)
-        
         # Show residuals for a few points
         sample_indices = np.linspace(0, len(y_true)-1, min(5, len(y_true)), dtype=int)
         for idx in sample_indices:
@@ -480,26 +478,50 @@ def create_rmse_r2_heatmap(n_points: int = 50) -> None:
     im1 = ax1.contourf(noise_range, variance_range, r2_grid, levels=20, cmap='RdYlGn')
     ax1.set_xscale('log')
     ax1.set_yscale('log')
-    ax1.set_xlabel('Prediction Noise (σ)', fontsize=12)
-    ax1.set_ylabel('Ground Truth Variance (σ²)', fontsize=12)
-    ax1.set_title('R² Score Heatmap', fontsize=14, fontweight='bold')
-    plt.colorbar(im1, ax=ax1, label='R² Score')
+    ax1.set_xlabel('Prediction Noise (σ)', fontsize=12, fontweight='bold')
+    ax1.set_ylabel('Ground Truth Variance (σ²)', fontsize=12, fontweight='bold')
+    ax1.set_title('R² Score Heatmap\nHow R² varies with data variance and prediction noise', 
+                  fontsize=13, fontweight='bold')
+    cbar1 = plt.colorbar(im1, ax=ax1, label='R² Score')
     ax1.grid(True, alpha=0.3)
+    
+    # Add interpretation text
+    ax1.text(0.02, 0.98, 'High variance + Low noise → High R²\nLow variance + High noise → Low/Negative R²', 
+             transform=ax1.transAxes, fontsize=9, va='top',
+             bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8))
     
     # Plot 2: RMSE heatmap
     im2 = ax2.contourf(noise_range, variance_range, rmse_grid, levels=20, cmap='YlOrRd')
     ax2.set_xscale('log')
     ax2.set_yscale('log')
-    ax2.set_xlabel('Prediction Noise (σ)', fontsize=12)
-    ax2.set_ylabel('Ground Truth Variance (σ²)', fontsize=12)
-    ax2.set_title('RMSE Heatmap', fontsize=14, fontweight='bold')
-    plt.colorbar(im2, ax=ax2, label='RMSE')
+    ax2.set_xlabel('Prediction Noise (σ)', fontsize=12, fontweight='bold')
+    ax2.set_ylabel('Ground Truth Variance (σ²)', fontsize=12, fontweight='bold')
+    ax2.set_title('RMSE Heatmap\nHow RMSE varies with data variance and prediction noise', 
+                  fontsize=13, fontweight='bold')
+    cbar2 = plt.colorbar(im2, ax=ax2, label='RMSE')
     ax2.grid(True, alpha=0.3)
+    
+    # Add interpretation text
+    ax2.text(0.02, 0.98, 'RMSE ≈ Prediction Noise (σ)\nIndependent of ground truth variance!', 
+             transform=ax2.transAxes, fontsize=9, va='top',
+             bbox=dict(boxstyle='round', facecolor='lightyellow', alpha=0.8))
+    
+    # Add overall figure title
+    fig.suptitle('Impact of Ground Truth Variance and Prediction Noise on Metrics\n' + 
+                 'Key Insight: RMSE depends only on noise, but R² depends on BOTH variance and noise',
+                 fontsize=14, fontweight='bold', y=1.00)
     
     plt.tight_layout()
     output_path = PLOTS_DIR / 'variance_noise_impact_heatmap.png'
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     print(f"Saved: {output_path}")
+    print(f"\nHeatmap Interpretation:")
+    print(f"  LEFT (R² Heatmap): Shows R² is sensitive to BOTH variance and noise")
+    print(f"    - Green (high R²): High variance OR low noise")
+    print(f"    - Red (low R²): Low variance AND high noise")
+    print(f"  RIGHT (RMSE Heatmap): Shows RMSE depends mainly on prediction noise")
+    print(f"    - RMSE ≈ prediction noise (horizontal bands)")
+    print(f"    - Ground truth variance has minimal effect on RMSE")
     plt.close(fig)  # Close instead of show for non-interactive mode
 
 
