@@ -1,9 +1,10 @@
 Scenario,R² Score,RMSE,Description
 Perfect Prediction,1.0,0.0,Perfect predictions: y_pred = y_true
 Low Variance Data (std=1.0),0.8313374814594439,0.4430670865518337,"Ground truth has low variance, small prediction errors"
+Near-Min Pred. (Low Var),-3.0487996720246846,0.6409990838583945,"Very low variance data near min, predict near min → SS_tot≈0, R²→-∞"
 Near-Mean Pred. (Low Var),-0.08642289888033017,2.2063712379743583,"Low variance data, predict near mean → LOW RMSE, LOW R²"
 High Variance Data (std=30.0),0.969352158304657,4.745753751232805,"Ground truth has high variance, same absolute errors"
 Constant Offset (5.0),0.9705940594059406,5.0,Predictions shifted by constant 5.0
 Constant Prediction (50.0),0.0,29.157646512850626,Always predict 50.0 (mean of y_true)
-Random Predictions,-0.8218285011046378,39.35557052151332,Completely random predictions
-Inverse Relationship,-3.0985061540447614,59.02897775786961,Predictions inversely correlated with truth
+Random Predictions,-1.1626917458457346,42.87950645108194,Completely random predictions
+Inverse Relationship,-2.9216283689901292,57.74118391960574,Predictions inversely correlated with truth

@@ -39,9 +39,11 @@ KEY INSIGHTS: Can Low RMSE Coexist with Low/Negative R²?
 6. EXTREME CASE - Negative R²:
    ⚠ Near-Mean Pred. (Low Var): R²=-0.086, RMSE=2.206
      → Model performs WORSE than simply predicting the mean!
-   ⚠ Inverse Relationship: R²=-3.099, RMSE=59.029
+   ⚠ Near-Min Pred. (Low Var): R²=-3.049, RMSE=0.641
      → Model performs WORSE than simply predicting the mean!
-   ⚠ Random Predictions: R²=-0.822, RMSE=39.356
+   ⚠ Inverse Relationship: R²=-2.922, RMSE=57.741
+     → Model performs WORSE than simply predicting the mean!
+   ⚠ Random Predictions: R²=-1.163, RMSE=42.880
      → Model performs WORSE than simply predicting the mean!
 
 ====================================================================================================

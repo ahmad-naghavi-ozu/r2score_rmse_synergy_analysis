@@ -161,8 +161,28 @@ def scenario_near_mean_prediction_low_variance(n_samples: int = 100) -> Dict:
     }
 
 
+def scenario_near_min_prediction_low_variance(n_samples: int = 100) -> Dict:
+    """Scenario 8: Predict near minimum for low variance data (SS_tot→0, R²→-∞)"""
+    # Critical scenario: low variance data concentrated near minimum
+    # When data has low variance near min, predicting near min makes SS_total ≈ 0
+    # Even small errors make SS_residual > SS_total, causing R² → -∞
+    y_min = 45.0
+    y_true = np.random.normal(y_min + 0.5, 0.3, n_samples)  # Very small variance near min (std=0.3)
+    y_pred = np.full(n_samples, y_min) + np.random.normal(0, 0.2, n_samples)  # Predict near min
+    r2, rmse = calculate_metrics(y_true, y_pred)
+    
+    return {
+        'name': 'Near-Min Pred. (Low Var)',
+        'y_true': y_true,
+        'y_pred': y_pred,
+        'r2': r2,
+        'rmse': rmse,
+        'description': 'Very low variance data near min, predict near min → SS_tot≈0, R²→-∞'
+    }
+
+
 def scenario_random_predictions(n_samples: int = 100) -> Dict:
-    """Scenario 8: Completely random predictions"""
+    """Scenario 9: Completely random predictions"""
     y_true = np.linspace(0, 100, n_samples)
     y_pred = np.random.uniform(0, 100, n_samples)  # Random predictions
     r2, rmse = calculate_metrics(y_true, y_pred)
@@ -387,6 +407,9 @@ INTERPRETATION:
     if np.var(y_true) < 10 and scenario['r2'] < 0.5:
         stats_text += "\n\n  ⚠ LOW VARIANCE DATA!\n  Low R² despite potentially low RMSE\n  due to small ground truth variance."
     
+    if np.var(y_true) < 1 and ss_total < 10:
+        stats_text += "\n\n  ⚠ CRITICAL: SS_total ≈ 0!\n  When data variance is extremely low,\n  SS_total approaches zero, making R²\n  extremely sensitive. Even tiny errors\n  can cause R² → -∞!"
+    
     ax4.text(0.05, 0.95, stats_text, transform=ax4.transAxes,
             fontsize=10, verticalalignment='top', fontfamily='monospace',
             bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.3))
@@ -406,6 +429,7 @@ def create_all_detailed_diagnostics(scenarios: List[Dict]) -> None:
         ('Perfect Prediction', 'perfect_prediction'),
         ('High Variance Data (std=30.0)', 'high_variance'),
         ('Near-Mean Pred. (Low Var)', 'low_variance_low_r2'),
+        ('Near-Min Pred. (Low Var)', 'near_min_low_variance_neg_inf_r2'),
         ('Inverse Relationship', 'inverse_relationship'),
     ]
     
@@ -601,6 +625,7 @@ def main():
         scenario_high_variance_data(noise_std=5.0),
         scenario_small_variance_data(noise_std=0.5),
         scenario_near_mean_prediction_low_variance(),
+        scenario_near_min_prediction_low_variance(),
         scenario_constant_prediction(constant=50.0),
         scenario_inverse_relationship(),
         scenario_random_predictions(),
