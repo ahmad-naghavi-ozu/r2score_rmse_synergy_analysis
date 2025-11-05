@@ -259,7 +259,7 @@ def create_comprehensive_visualization(scenarios: List[Dict]) -> None:
     output_path = PLOTS_DIR / 'scenario_comparison_r2_vs_rmse.png'
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     print(f"Saved: {output_path}")
-    plt.show()
+    plt.close(fig)  # Close instead of show for non-interactive mode
 
 
 def create_detailed_diagnostic_plot(scenario: Dict) -> plt.Figure:
@@ -298,16 +298,27 @@ def create_detailed_diagnostic_plot(scenario: Dict) -> plt.Figure:
                label=f'Mean GT (ȳ={y_mean:.2f})', alpha=0.8, zorder=1)
     ax1.axvline(x=y_mean, color='green', linestyle=':', linewidth=2.5, alpha=0.8, zorder=1)
     
-    # Show residuals for sample points
-    sample_indices = np.linspace(0, len(y_true)-1, min(8, len(y_true)), dtype=int)
+    # Show residuals for sample points (vertical lines showing prediction errors)
+    # Use more samples for better visibility
+    sample_indices = np.linspace(0, len(y_true)-1, min(15, len(y_true)), dtype=int)
     for i, idx in enumerate(sample_indices):
         color = 'orange' if i == 0 else 'coral'
-        alpha = 0.8 if i == 0 else 0.4
-        linewidth = 2.5 if i == 0 else 1.5
+        alpha = 0.9 if i == 0 else 0.5
+        linewidth = 2.5 if i == 0 else 1.8
         label = 'Residuals (ŷ-y)' if i == 0 else None
-        # Vertical line from point to y=x line
+        # Vertical line from point to y=x line (showing residual)
         ax1.plot([y_true[idx], y_true[idx]], [y_pred[idx], y_true[idx]], 
                color=color, linewidth=linewidth, alpha=alpha, zorder=4, label=label)
+    
+    # Show distance from true values to mean (horizontal lines showing SS_total components)
+    for i, idx in enumerate(sample_indices):
+        color = 'purple' if i == 0 else 'mediumpurple'
+        alpha = 0.9 if i == 0 else 0.55  # Increased alpha for better visibility
+        linewidth = 2.5 if i == 0 else 1.8
+        label = 'y - ȳ (for SS_total)' if i == 0 else None
+        # Horizontal line from true value to mean line (showing deviation from mean)
+        ax1.plot([y_true[idx], y_mean], [y_pred[idx], y_pred[idx]], 
+               color=color, linewidth=linewidth, alpha=alpha, zorder=3, label=label)
     
     ax1.set_xlabel('True Values (y)', fontsize=13, fontweight='bold')
     ax1.set_ylabel('Predicted Values (ŷ)', fontsize=13, fontweight='bold')
@@ -489,7 +500,7 @@ def create_rmse_r2_heatmap(n_points: int = 50) -> None:
     output_path = PLOTS_DIR / 'variance_noise_impact_heatmap.png'
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     print(f"Saved: {output_path}")
-    plt.show()
+    plt.close(fig)  # Close instead of show for non-interactive mode
 
 
 def create_summary_table(scenarios: List[Dict]) -> pd.DataFrame:
