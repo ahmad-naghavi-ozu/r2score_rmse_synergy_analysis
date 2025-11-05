@@ -1,0 +1,47 @@
+
+====================================================================================================
+KEY INSIGHTS: Can Low RMSE Coexist with Low/Negative R²?
+====================================================================================================
+
+1. MATHEMATICAL RELATIONSHIP:
+   - RMSE measures absolute prediction error (scale-dependent)
+   - R² measures explained variance (scale-independent)
+   - R² = 1 - (SS_res / SS_tot) where SS_tot = variance of y_true
+
+2. CRITICAL FINDING: YES, Low RMSE can have Low R²!
+   Condition: When ground truth has LOW VARIANCE
+
+3. EXAMPLES FROM SCENARIOS:
+----------------------------------------------------------------------------------------------------
+   ✓ High Variance Data (Perfect Prediction):
+     - Ground truth variance: 850.17
+     - RMSE: 0.000 (low)
+     - R²: 1.000 (high)
+     → Low RMSE + High R² ✓
+
+   ⚠ Low Variance Data (Low Variance Data (std=1.0)):
+     - Ground truth variance: 1.16
+     - RMSE: 0.443 (low)
+     - R²: 0.831 (low!)
+     → Low RMSE + Low R² ⚠ POSSIBLE!
+
+4. WHY THIS HAPPENS:
+   - RMSE of 2.0 on data ranging 0-100 → excellent (2% error)
+   - RMSE of 2.0 on data ranging 50-52 → poor (100% of variance)
+   - R² accounts for this by normalizing against variance
+
+5. PRACTICAL IMPLICATIONS:
+   - Always report BOTH metrics
+   - Low RMSE alone doesn't guarantee good model
+   - If R² is low despite low RMSE → model may not capture variance
+   - Check ground truth variance when interpreting metrics
+
+6. EXTREME CASE - Negative R²:
+   ⚠ Near-Mean Pred. (Low Var): R²=-0.086, RMSE=2.206
+     → Model performs WORSE than simply predicting the mean!
+   ⚠ Inverse Relationship: R²=-3.099, RMSE=59.029
+     → Model performs WORSE than simply predicting the mean!
+   ⚠ Random Predictions: R²=-0.822, RMSE=39.356
+     → Model performs WORSE than simply predicting the mean!
+
+====================================================================================================
